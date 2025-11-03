@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn with Audio</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f8f9fa;
+    color: #333;
+  }
+
+  h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+
+  #lesson-select, #language-select {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  #word-list {
+    margin-top: 20px;
+  }
+
+  .word-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  #audio-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    border: 2px solid green;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+  button.play-btn {
+    background: #4CAF50;
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button.play-btn.paused {
+    background: #f39c12;
+  }
+
+  #back {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+</style>
+</head>
+<body>
+<div id="audio-container">
+  <h2>🎧 Learn with Audio</h2>
+
+  <select id="language-select">
+    <option value="">Select Language</option>
+  </select>
+  <select id="lesson-select">
+    <option value="">Select Lesson</option>
+  </select>
+  <div id="word-list"></div>
+
+  <button id="back" style="display:none;">Back to Lessons</button>
+
+</div>
+
+
+
+
+
+
+
+<script>
+fetch("audio_lessons.json")
+  .then(res => res.json())
+  .then(data => {
+    const languageSelect = document.getElementById("language-select");
+    const lessonSelect = document.getElementById("lesson-select");
+    const wordList = document.getElementById("word-list");
+    const backBtn = document.getElementById("back");
+
+    let currentAudio = null;
+    let currentButton = null;
+
+    // Populate language list
+    const languages = [...new Set(data.map(item => item.language))];
+    languages.forEach(lang => {
+      const opt = document.createElement("option");
+      opt.value = lang;
+      opt.textContent = lang.charAt(0).toUpperCase() + lang.slice(1);
+      languageSelect.appendChild(opt);
+    });
+
+    // Handle language selection
+    languageSelect.addEventListener("change", () => {
+      const selectedLang = languageSelect.value;
+      lessonSelect.innerHTML = `<option value="">Select Lesson</option>`;
+      wordList.innerHTML = "";
+
+      if (selectedLang) {
+        const lessons = data.filter(l => l.language === selectedLang);
+        lessons.forEach(l => {
+          const opt = document.createElement("option");
+          opt.value = l.lesson;
+          opt.textContent = l.lesson;
+          lessonSelect.appendChild(opt);
+        });
+      }
+    });
+
+    // Handle lesson selection
+    lessonSelect.addEventListener("change", () => {
+      const selectedLang = languageSelect.value;
+      const selectedLesson = lessonSelect.value;
+      const selectedData = data.find(l => l.language === selectedLang && l.lesson === selectedLesson);
+
+      if (selectedData) {
+        renderWordList(selectedData.words);
+      }
+    });
+
+    // Render words with play buttons
+    function renderWordList(words) {
+      wordList.innerHTML = words.map(word => `
+        <div class="word-item">
+          <span>${word.word}</span>
+          <button class="play-btn" data-audio="${word.audio}">Play</button>
+        </div>
+      `).join("");
+
+      const playButtons = document.querySelectorAll(".play-btn");
+      const disPbackBtn = document.getElementById("back");
+      disPbackBtn.style.display = "inline-block";
+
+      playButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const audioSrc = btn.getAttribute("data-audio");
+
+          if (currentAudio && currentAudio.src.includes(audioSrc)) {
+            if (currentAudio.paused) {
+              currentAudio.play();
+              btn.textContent = "Pause";
+              btn.classList.add("paused");
+            } else {
+              currentAudio.pause();
+              btn.textContent = "Play";
+              btn.classList.remove("paused");
+            }
+            return;
+          }
+
+          if (currentAudio) {
+            currentAudio.pause();
+            if (currentButton) {
+              currentButton.textContent = "Play";
+              currentButton.classList.remove("paused");
+            }
+          }
+
+          currentAudio = new Audio(audioSrc);
+          currentAudio.play();
+          btn.textContent = "Pause";
+          btn.classList.add("paused");
+          currentButton = btn;
+
+          currentAudio.addEventListener("ended", () => {
+            btn.textContent = "Play";
+            btn.classList.remove("paused");
+          });
+        });
+      });
+    }
+
+    backBtn.addEventListener("click", () => {
+      languageSelect.value = "";
+      lessonSelect.value = "";
+      wordList.innerHTML = "";
+      backBtn.style.display = "none";
+    });
+  })
+  .catch(err => {
+    document.getElementById("word-list").innerHTML = `<p style="color:red;">Failed to load audio lessons.</p>`;
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>

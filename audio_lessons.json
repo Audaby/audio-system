@@ -1,0 +1,26 @@
+[
+  {
+    "language": "english",
+    "lesson": "Greetings",
+    "words": [
+      { "word": "Hello", "audio": "assets/audio/english/hello.mp3" },
+      { "word": "Goodbye", "audio": "assets/audio/english/goodbye.mp3" },
+      { "word": "Thank you", "audio": "assets/audio/english/thankyou.mp3" },
+      { "word": "Good Morning", "audio": "assets/audio/english/goodmorning.mp3" },
+      { "word": "Hi", "audio": "assets/audio/english/hi.mp3" },
+      { "word": "Hey", "audio": "assets/audio/english/hey.mp3" },
+      { "word": "Good Afternoon", "audio": "assets/audio/english/goodafternoon.mp3" },
+      { "word": "How are you", "audio": "assets/audio/english/howareyou.mp3" },
+      { "word": "Nice to meet you", "audio": "assets/audio/english/nicetomeetyou.mp3" }
+    ]
+  },
+  {
+    "language": "swahili",
+    "lesson": "Salamu",
+    "words": [
+      { "word": "Habari", "audio": "assets/audio/swahili/habari.mp3" },
+      { "word": "Asante", "audio": "assets/audio/swahili/asante.mp3" },
+      { "word": "Karibu", "audio": "assets/audio/swahili/karibu.mp3" }
+    ]
+  }
+]
